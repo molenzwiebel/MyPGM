@@ -1,26 +1,17 @@
 package nl.thijsmolendijk.MyPGM;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -32,126 +23,7 @@ public class PGMListener implements Listener {
 	}
 	
 	//Events
-	//Observer event blocking
-	@EventHandler()
-	public void onInteract(PlayerInteractEvent event) {
-		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
-			System.out.println("onInteract: Player is observer, cancelling event");
-			//Player clicked no block, return
-			if (event.getClickedBlock() == null) {
-				event.setCancelled(true);
-				return;
-			}
-			//Player is a observer and clicked with a compass
-			if(event.getPlayer().getItemInHand().getType() == Material.COMPASS){
-                		event.setCancelled(true);
-                		Block target = event.getPlayer().getTargetBlock(null, 200);
-                		if (target == null) {
-                			event.setCancelled(true);
-                			return;
-                		}
-                		float Yaw = event.getPlayer().getLocation().getYaw();
-                		float Pitch = event.getPlayer().getLocation().getPitch();
-                		Location loc = target.getLocation();
-               			loc.setY(loc.getY()+1);
-                		loc.setPitch(Pitch);
-                		loc.setYaw(Yaw);
-                		event.getPlayer().teleport(loc);
-           		}
-			//Make observers able to open chests
-			if (event.getClickedBlock().getType() == Material.CHEST) return;
-			event.setCancelled(true);
-			return;
-		}
-	}
-	@EventHandler()
-	public void onBlockBreak(BlockBreakEvent event) {
-		if (this.plugin.currentMap.blockBreaking == false) {
-			//BlockBreaking is off, cancelling event
-			event.setCancelled(true);
-			return;
-		}
-		//Spawn protection check
-		int radius = this.plugin.currentMap.spawnProtectionRadius;
-		for (int x = -(radius); x <= radius; x ++)
-		{
-		  for (int y = -(radius); y <= radius; y ++)
-		  {
-		    for (int z = -(radius); z <= radius; z ++)
-		    {
-		      if (this.plugin.currentMap.redSpawn.getBlock().getRelative(x, y, z).equals(event.getBlock()) ||
-		    	  this.plugin.currentMap.blueSpawn.getBlock().getRelative(x, y, z).equals(event.getBlock()))
-		      {
-		          event.setCancelled(true);
-		          event.getPlayer().sendMessage(ChatColor.RED + "No breaking or placing blocks in spawn!");
-		       }
-		     }
-		   }
-		}
-		//Core breaking!!!
-		if (this.plugin.currentMap.gameType.equalsIgnoreCase("dtc")) {
-			this.checkCoreBreak(event);
-		}	
-	}
-	public void checkCoreBreak(BlockBreakEvent event) {
-	//Check if a core is broken
-	int radius = this.plugin.currentMap.coreRadius;
-		for (int x = -(radius); x <= radius; x ++)
-		{
-		  for (int y = -(radius); y <= radius; y ++)
-		  {
-		    for (int z = -(radius); z <= radius; z ++)
-		    {
-		      if (this.plugin.currentMap.redCoreLocation.getBlock().getRelative(x, y, z).equals(event.getBlock()) &&
-		    		  event.getBlock().getType() == Material.OBSIDIAN && Tools.hasLava(event.getBlock()))
-		      {
-		          if (!(this.plugin.teamOne.contains(event.getPlayer().getName()))) {
-		        	  event.setCancelled(false);
-		        	  this.plugin.scoreOne = this.plugin.scoreTwo+1;
-		        	  this.plugin.endGame();
-		        	  
-		          } else {
-		        	  event.getPlayer().sendMessage(ChatColor.RED + "Don't break your own core!");
-		        	  event.setCancelled(true);
-		          }
-		      }
-		      if (this.plugin.currentMap.blueCoreLocation.getBlock().getRelative(x, y, z).equals(event.getBlock()) &&
-		    		  event.getBlock().getType() == Material.OBSIDIAN && Tools.hasLava(event.getBlock()))
-		      {
-		    	  if (!(this.plugin.teamTwo.contains(event.getPlayer().getName()))) {
-		        	  event.setCancelled(false);
-		        	  
-		        	  this.plugin.scoreTwo = this.plugin.scoreOne+1;
-		        	  this.plugin.endGame();
-		          } else {
-		        	  event.getPlayer().sendMessage(ChatColor.RED + "Don't break your own core!");
-		        	  event.setCancelled(true);
-		          }
-		      }
-		     }
-		   }
-		}
-	}
-	@EventHandler()
-	public void onBlockPlace(BlockPlaceEvent event) {
-		//Handle spawn protection
-		int radius = this.plugin.currentMap.spawnProtectionRadius;
-		for (int x = -(radius); x <= radius; x ++)
-		{
-		  for (int y = -(radius); y <= radius; y ++)
-		  {
-		    for (int z = -(radius); z <= radius; z ++)
-		    {
-		      if (this.plugin.currentMap.redSpawn.getBlock().getRelative(x, y, z).equals(event.getBlock()) ||
-		    	  this.plugin.currentMap.blueSpawn.getBlock().getRelative(x, y, z).equals(event.getBlock()))
-		      {
-		          event.setCancelled(true);
-		          event.getPlayer().sendMessage(ChatColor.RED + "No breaking or placing blocks in spawn!");
-		       }
-		     }
-		   }
-		}
-	}
+	
 	//Observer cancelling end
 	@EventHandler()
 	public void onPlayerDamage(EntityDamageByEntityEvent event) {
