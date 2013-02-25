@@ -66,11 +66,6 @@ public class PGMListener implements Listener {
 	}
 	@EventHandler()
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
-			//Player is observer, cancelling event
-			event.setCancelled(true);
-			return;
-		}
 		if (this.plugin.currentMap.blockBreaking == false) {
 			//BlockBreaking is off, cancelling event
 			event.setCancelled(true);
@@ -140,10 +135,6 @@ public class PGMListener implements Listener {
 	@EventHandler()
 	public void onBlockPlace(BlockPlaceEvent event) {
 		//Handle spawn protection
-		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
-			event.setCancelled(true);
-			return;
-		}
 		int radius = this.plugin.currentMap.spawnProtectionRadius;
 		for (int x = -(radius); x <= radius; x ++)
 		{
@@ -159,28 +150,6 @@ public class PGMListener implements Listener {
 		       }
 		     }
 		   }
-		}
-	}
-	//Observer cancelling start
-	@EventHandler()
-	public void onItemDrop(PlayerDropItemEvent event) {
-		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
-			event.setCancelled(true);
-			return;
-		}
-	}
-	@EventHandler() 
-	public void onInventoryClick(InventoryClickEvent event) {
-		if (this.plugin.spectators.contains(event.getWhoClicked().getName()) && event.getWhoClicked().getOpenInventory().getType() == InventoryType.CHEST) {
-			event.setCancelled(true);
-			return;
-		}
-	}
-	@EventHandler()
-	public void onItemPickup(PlayerPickupItemEvent event) {
-		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
-			event.setCancelled(true);
-			return;
 		}
 	}
 	//Observer cancelling end
