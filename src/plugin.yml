@@ -1,0 +1,68 @@
+name: MyPGM
+version: 0.1
+main: nl.thijsmolendijk.MyPGM.Main
+commands:
+   join:
+      description: Join a team
+      usage: blaa/join <Team> blarUse team r or red to join the red team, use b or blue to join the blue team. Use join o or obs to join the observers.
+      permission: join
+      permission-message: You don't have permissions to do that
+   match:
+      description: Get the current match status
+      usage: blaa/match 
+      permission: match
+      permission-message: You don't have permissions to do that!
+   lm:
+      description: Load a map
+      usage: blaa/lm <Map> blarWill search in /Maps for a folder and .xml called <Map>, use a fake value to unload the current world.
+      permission: loadMap
+      permission-message: You don't have permissions to do that!
+   map:
+      description: Current map
+      usage: blaa/map blarWill not display anything if no map is loaded
+      permission: map
+      permission-message: You don't have permissions to do that!
+   start:
+      description: Start the game
+      usage: blaa/start blarWill not work if the match is already started
+      permission: start
+      permission-message: You don't have permissions to do that!
+   xml:
+      description: All xml commands
+      usage: blaa/xml <action> blarActions are bla7createInventory
+      permission: createxml
+      permission-message: You don't have permissions to do that!
+   forcestart:
+      description: Force start the game
+      usage: blaa/forcestart blarWill not work if the match is already running
+      permission: forcestart
+      permission-message: You don't have permissions to do that!
+   forceend:
+      description: Force end the game
+      usage: blaa/forcestart blarWill not work if no match is running
+      permission: forcestart
+      permission-message: You don't have permissions to do that!
+   set:
+      description: Edit the xml in-game
+      usage: blaa/set <name of setting> <value> blarWill not work with values other than booleans, ints and strings
+      permission: set
+      permission-message: You don't have permissions to do that!
+   
+permissions:
+  join:
+    default: true
+  match:
+    default: true
+  loadMap:
+    default: op
+  start:
+    default: op
+  createxml:
+    default: op
+  forcestart:
+    default: op
+  forceend:
+    default: op
+  map:
+    default: true
+   
