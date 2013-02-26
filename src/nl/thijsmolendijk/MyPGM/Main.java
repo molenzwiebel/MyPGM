@@ -10,7 +10,9 @@ import nl.thijsmolendijk.MyPGM.Commands.MatchCommand;
 import nl.thijsmolendijk.MyPGM.Commands.SetCommand;
 import nl.thijsmolendijk.MyPGM.Commands.StartAndEndCommands;
 import nl.thijsmolendijk.MyPGM.Commands.XMLCommands;
+import nl.thijsmolendijk.MyPGM.Listeners.BlockBreakAndPlaceListener;
 import nl.thijsmolendijk.MyPGM.Listeners.ObserverListener;
+import nl.thijsmolendijk.MyPGM.Listeners.PlayerDamageListener;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -35,6 +37,8 @@ public class Main extends JavaPlugin {
 		timerHandler = new TimerHandler(this);
 		this.getServer().getPluginManager().registerEvents(listener, this);
 		this.getServer().getPluginManager().registerEvents(new ObserverListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new BlockBreakAndPlaceListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);
 		this.getCommand("join").setExecutor(new JoinCommand(this));
 		this.getCommand("match").setExecutor(new MatchCommand(this));
 		this.getCommand("lm").setExecutor(new LoadMapCommand(this));
