@@ -4,8 +4,11 @@ import nl.thijsmolendijk.MyPGM.Main;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -29,7 +32,6 @@ public class RuleListeners implements Listener {
 		event.setCancelled(true);
 	}
 
-	@SuppressWarnings("unchecked")
 	@EventHandler
 	public void onShoot(ProjectileLaunchEvent event) throws ClassNotFoundException {
 		if (!this.plugin.currentMap.changeBowProjectile) return;
@@ -39,12 +41,16 @@ public class RuleListeners implements Listener {
 				Player shooter = (Player) arrow.getShooter();
 				if (shooter.getItemInHand().getType() == Material.BOW) {
 					event.setCancelled(true);
-					Class<?> cls = Class.forName("org.bukkit.entity."+this.plugin.currentMap.newBowEntity);
-					Class<? extends Projectile> cls2 = (Class<? extends Projectile>) cls;
-					shooter.launchProjectile(cls2).setVelocity(
+					shooter.launchProjectile(this.classForString(this.plugin.currentMap.newBowEntity)).setVelocity(
 							arrow.getVelocity().multiply(this.plugin.currentMap.newBowVelocity));
 				}
 			}
 		}
+	}
+	public Class<? extends Projectile> classForString(String str) {
+		if (str.equalsIgnoreCase("Snowball")) return Snowball.class;
+		if (str.equalsIgnoreCase("enderpearl")) return EnderPearl.class;
+		if (str.equalsIgnoreCase("fireball")) return Fireball.class;
+		return Arrow.class;
 	}
 }

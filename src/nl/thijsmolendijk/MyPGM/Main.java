@@ -11,8 +11,11 @@ import nl.thijsmolendijk.MyPGM.Commands.SetCommand;
 import nl.thijsmolendijk.MyPGM.Commands.StartAndEndCommands;
 import nl.thijsmolendijk.MyPGM.Commands.XMLCommands;
 import nl.thijsmolendijk.MyPGM.Listeners.BlockBreakAndPlaceListener;
+import nl.thijsmolendijk.MyPGM.Listeners.ChatListener;
+import nl.thijsmolendijk.MyPGM.Listeners.ObjectiveListener;
 import nl.thijsmolendijk.MyPGM.Listeners.ObserverListener;
 import nl.thijsmolendijk.MyPGM.Listeners.PlayerDamageListener;
+import nl.thijsmolendijk.MyPGM.Listeners.RuleListeners;
 import nl.thijsmolendijk.MyPGM.MapData.MapData;
 
 import org.bukkit.GameMode;
@@ -38,6 +41,9 @@ public class Main extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new ObserverListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new BlockBreakAndPlaceListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new RuleListeners(this), this);
+		this.getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new ObjectiveListener(this), this);
 		this.getCommand("join").setExecutor(new JoinCommand(this));
 		this.getCommand("match").setExecutor(new MatchCommand(this));
 		this.getCommand("lm").setExecutor(new LoadMapCommand(this));

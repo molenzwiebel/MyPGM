@@ -59,5 +59,6 @@ public class MapData {
 		this.timeToForce = 0;
 		this.teamOne = new TeamData("Red team", 50, ChatColor.RED);
 		this.teamTwo = new TeamData("Blue team", 50, ChatColor.BLUE);
+		this.changeBowProjectile = false;
 	}
 }

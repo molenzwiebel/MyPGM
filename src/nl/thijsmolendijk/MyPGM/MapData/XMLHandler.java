@@ -186,13 +186,14 @@ public class XMLHandler {
 			data.teamTwo = new TeamData(teamTwoName, Integer.parseInt(teamTwoMaxSize), teamTwoColor);
 			data.teamTwo.joinArg = joinArgTwo;
 		}
-		if (notExists(ed, "modifyBowProjectile")) { data.changeBowProjectile = false; } else {
-		Node bowNode = doc.getElementsByTagName("modifyBowProjectile").item(0);
-		if (bowNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element bowElement = (Element) bowNode;
-			data.newBowEntity = bowElement.getElementsByTagName("entity").item(0).getTextContent();
-			data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
-		}
+		if (notExists(ed, "changeBowProjectile")) { data.changeBowProjectile = false; } else {
+			Node bowNode = doc.getElementsByTagName("changeBowProjectile").item(0);
+			if (bowNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element bowElement = (Element) bowNode;
+				data.changeBowProjectile = true;
+				data.newBowEntity = bowElement.getElementsByTagName("entity").item(0).getTextContent();
+				data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
+			}
 		}
 		return data;
 		
