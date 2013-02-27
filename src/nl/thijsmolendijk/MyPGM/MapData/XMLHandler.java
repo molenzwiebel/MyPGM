@@ -1,9 +1,11 @@
-package nl.thijsmolendijk.MyPGM;
+package nl.thijsmolendijk.MyPGM.MapData;
 
 import java.io.File;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import nl.thijsmolendijk.MyPGM.TeamData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -183,6 +185,14 @@ public class XMLHandler {
 			}
 			data.teamTwo = new TeamData(teamTwoName, Integer.parseInt(teamTwoMaxSize), teamTwoColor);
 			data.teamTwo.joinArg = joinArgTwo;
+		}
+		if (notExists(ed, "modifyBowProjectile")) { data.changeBowProjectile = false; } else {
+		Node bowNode = doc.getElementsByTagName("modifyBowProjectile").item(0);
+		if (bowNode.getNodeType() == Node.ELEMENT_NODE) {
+			Element bowElement = (Element) bowNode;
+			data.newBowEntity = bowElement.getElementsByTagName("entity").item(0).getTextContent();
+			data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
+		}
 		}
 		return data;
 		

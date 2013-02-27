@@ -1,8 +1,10 @@
 package nl.thijsmolendijk.MyPGM.Listeners;
 
 import nl.thijsmolendijk.MyPGM.Main;
+import nl.thijsmolendijk.MyPGM.Tools;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -12,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerDamageListener implements Listener {
@@ -67,6 +70,22 @@ public class PlayerDamageListener implements Listener {
 		}
 		event.setDeathMessage(this.customDeath(event));
 		event.setDeathMessage(event.getDeathMessage().replace(event.getEntity().getName(), event.getEntity().getDisplayName()));
+	}
+	@EventHandler()
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		if (this.plugin.currentMap.name.equals("")) return;
+		if (this.plugin.spectators.contains(event.getPlayer().getName())) {
+			event.setRespawnLocation(this.plugin.currentMap.world.getSpawnLocation());
+			event.getPlayer().setItemInHand(new ItemStack(Material.COMPASS, 1));
+		}
+		if (this.plugin.teamOne.contains(event.getPlayer().getName())) {
+			event.setRespawnLocation(this.plugin.currentMap.redSpawn);
+			Tools.addItemsToPlayerInv(event.getPlayer(), this.plugin.currentMap.redInv);
+		}
+		if (this.plugin.teamTwo.contains(event.getPlayer().getName())) {
+			event.setRespawnLocation(this.plugin.currentMap.blueSpawn);
+			Tools.addItemsToPlayerInv(event.getPlayer(), this.plugin.currentMap.blueInv);
+		}
 	}
 	@SuppressWarnings("unused")
 	public String customDeath(PlayerDeathEvent event) {

@@ -13,6 +13,7 @@ import nl.thijsmolendijk.MyPGM.Commands.XMLCommands;
 import nl.thijsmolendijk.MyPGM.Listeners.BlockBreakAndPlaceListener;
 import nl.thijsmolendijk.MyPGM.Listeners.ObserverListener;
 import nl.thijsmolendijk.MyPGM.Listeners.PlayerDamageListener;
+import nl.thijsmolendijk.MyPGM.MapData.MapData;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -33,9 +34,7 @@ public class Main extends JavaPlugin {
 	//onEnable and onDisable
 	public void onEnable() {
 		//Enabling plugin
-		PGMListener listener = new PGMListener(this);
 		timerHandler = new TimerHandler(this);
-		this.getServer().getPluginManager().registerEvents(listener, this);
 		this.getServer().getPluginManager().registerEvents(new ObserverListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new BlockBreakAndPlaceListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);

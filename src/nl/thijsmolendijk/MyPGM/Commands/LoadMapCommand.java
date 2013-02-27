@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import nl.thijsmolendijk.MyPGM.Main;
-import nl.thijsmolendijk.MyPGM.MapData;
 import nl.thijsmolendijk.MyPGM.Tools;
-import nl.thijsmolendijk.MyPGM.XMLHandler;
+import nl.thijsmolendijk.MyPGM.MapData.MapData;
+import nl.thijsmolendijk.MyPGM.MapData.XMLHandler;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
