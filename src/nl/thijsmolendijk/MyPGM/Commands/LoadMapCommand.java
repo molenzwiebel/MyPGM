@@ -90,6 +90,8 @@ public class LoadMapCommand implements CommandExecutor {
 		data = XMLHandler.getMapData(args[0], newWorld);
 		} catch (Exception e) {
 			p.sendMessage(ChatColor.RED+"Your map XML is incorrect! Error: "+ e.getMessage());
+			p.sendMessage(ChatColor.GOLD+"Debug info in console \n \n \n \n \n \n \n \n");
+			e.printStackTrace();
 			return true;
 		}
 		System.out.println("Map name: "+data.name+", author: "+data.author);

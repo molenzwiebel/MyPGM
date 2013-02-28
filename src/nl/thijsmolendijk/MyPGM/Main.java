@@ -113,6 +113,7 @@ public class Main extends JavaPlugin {
 	}
 	//End the game, show a message based on the score
 	public void endGame() {
+		if (!this.currentMap.inProgress) return;
 		this.getServer().getScheduler().cancelTask(this.timerHandler.countdownIDMatchLength);
 		this.getServer().getScheduler().cancelTask(this.timerHandler.countdownIDGame);
 		this.getServer().getScheduler().cancelTask(this.timerHandler.timeForceID);

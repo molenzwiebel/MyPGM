@@ -6,6 +6,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import nl.thijsmolendijk.MyPGM.TeamData;
+import nl.thijsmolendijk.MyPGM.Cores.Core;
+import nl.thijsmolendijk.MyPGM.Cores.CoreManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -82,7 +84,7 @@ public class XMLHandler {
 		data.world = world;
 		data.matchLenght = Integer.parseInt(doc.getElementsByTagName("lenght").item(0).getTextContent());
 		data.spawnProtectionRadius = Integer.parseInt(doc.getElementsByTagName("spawnProtectionRadius").item(0).getTextContent());
-		
+		data.cores = new CoreManager();
 		if (notExists(ed, "redSpawn")) throw new Exception("Tag \"redSpawn\" doesn't exist");
 		String[] redSpawnData = doc.getElementsByTagName("redSpawn").item(0).getTextContent().split(":");
 		
@@ -195,6 +197,7 @@ public class XMLHandler {
 				data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
 			}
 		}
+		data = addCores(doc, world, data);
 		return data;
 		
 	}
@@ -204,5 +207,29 @@ public class XMLHandler {
 			return true;
 		}
 		return false;
+	}
+	public static MapData addCores(Document doc, World world, MapData map) throws Exception {
+		Element ed = doc.getDocumentElement();
+		if (notExists(ed, "cores")) throw new Exception("No cores found");
+		Node coreNode = doc.getElementsByTagName("cores").item(0);
+		if (coreNode.getNodeType() == Node.ELEMENT_NODE) {
+			Element coreElement = (Element) coreNode;
+			NodeList cores = coreElement.getChildNodes();
+			for (int i = 0; i < cores.getLength(); i++) {
+				Node node = cores.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element e = (Element) node;
+					String id = e.getAttribute("id");
+					String[] spawnData = e.getElementsByTagName("centerLocation").item(0).getTextContent().split(":");
+					Location center = new Location(world,Integer.parseInt(spawnData[0]),Integer.parseInt(spawnData[1]),Integer.parseInt(spawnData[2]));
+					int radius = Integer.parseInt(e.getElementsByTagName("radius").item(0).getTextContent());
+					boolean red = Boolean.parseBoolean(e.getElementsByTagName("redTeam").item(0).getTextContent());
+					Core c = new Core(id, null, center, radius, red);
+					map.cores.addCore(c);
+					System.out.println(map.cores);
+				}
+			}
+		}
+		return map;
 	}
 }
