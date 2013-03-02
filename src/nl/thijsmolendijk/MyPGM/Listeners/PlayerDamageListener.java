@@ -2,8 +2,8 @@ package nl.thijsmolendijk.MyPGM.Listeners;
 
 import nl.thijsmolendijk.MyPGM.Main;
 import nl.thijsmolendijk.MyPGM.Tools;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -34,35 +34,21 @@ public class PlayerDamageListener implements Listener {
 		if (!(event.getEntity() instanceof Player)) return;
 		if (!(event.getDamager() instanceof Player)) return;
 		Player damager = (Player) event.getEntity();
-		if (this.plugin.teamOne.contains(p.getName()) && this.plugin.teamOne.contains(damager.getName())) {
-			event.setCancelled(true);
-		} 
-		if (this.plugin.teamTwo.contains(p.getName()) && this.plugin.teamTwo.contains(damager.getName())) {
+		if (this.plugin.currentMap.teams.teamForPlayer(p).equals(this.plugin.currentMap.teams.teamForPlayer(damager))) {
 			event.setCancelled(true);
 		} 
 	}
 	@EventHandler()
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (!(this.plugin.currentMap.gameType.equalsIgnoreCase("tdm"))) return;
-		if (event.getEntity() == event.getEntity().getKiller()) { event.setDeathMessage(""); return; }
-			if (this.plugin.teamOne.contains(event.getEntity().getName())) {
-				this.plugin.scoreOne++;
-			}
-			if (this.plugin.teamTwo.contains(event.getEntity().getName())) {
-				this.plugin.scoreTwo++;
-			}
-			EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
-		if (damageEvent instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) damageEvent).getDamager() instanceof Player) {
-			Player killer = event.getEntity().getKiller();
-			String item = killer.getItemInHand().getType().toString().replace("_", "").toLowerCase();
-			event.setDeathMessage(event.getEntity().getDisplayName()+ChatColor.GRAY+" was killed by "+killer.getDisplayName() + " with his "+item);
-		}
-
+		TeamData d = this.plugin.currentMap.teams.teamForPlayer(event.getEntity().getKiller());
+		d.score++;
+		
 		if (this.plugin.currentMap.dropItemsOnDeath == false || this.plugin.spectators.contains(event.getEntity().getName())) {
 			event.setDroppedExp(0);
 			event.getDrops().clear();
 		}
-		if (!(this.plugin.teamOne.contains(event.getEntity().getName())) && !(this.plugin.teamTwo.contains(event.getEntity().getName())) && !(this.plugin.spectators.contains(event.getEntity().getName()))) {
+		if (this.plugin.currentMap.teams.teamForPlayer(event.getEntity()) == null && !(this.plugin.spectators.contains(event.getEntity().getName()))) {
 			event.setDeathMessage("");
 		}
 		if (this.plugin.spectators.contains(event.getEntity().getName())) {
@@ -70,6 +56,7 @@ public class PlayerDamageListener implements Listener {
 		}
 		event.setDeathMessage(this.customDeath(event));
 		event.setDeathMessage(event.getDeathMessage().replace(event.getEntity().getName(), event.getEntity().getDisplayName()));
+		event.setDeathMessage(event.getDeathMessage().replace(event.getEntity().getKiller().getName(), event.getEntity().getKiller().getDisplayName()));
 	}
 	@EventHandler()
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
@@ -78,14 +65,9 @@ public class PlayerDamageListener implements Listener {
 			event.setRespawnLocation(this.plugin.currentMap.world.getSpawnLocation());
 			event.getPlayer().setItemInHand(new ItemStack(Material.COMPASS, 1));
 		}
-		if (this.plugin.teamOne.contains(event.getPlayer().getName())) {
-			event.setRespawnLocation(this.plugin.currentMap.redSpawn);
-			Tools.addItemsToPlayerInv(event.getPlayer(), this.plugin.currentMap.redInv);
-		}
-		if (this.plugin.teamTwo.contains(event.getPlayer().getName())) {
-			event.setRespawnLocation(this.plugin.currentMap.blueSpawn);
-			Tools.addItemsToPlayerInv(event.getPlayer(), this.plugin.currentMap.blueInv);
-		}
+		TeamData d = this.plugin.currentMap.teams.teamForPlayer(event.getPlayer());
+		event.getPlayer().teleport(d.spawn);
+		Tools.addItemsToPlayerInv(event.getPlayer(), d.spawnInventory);
 	}
 	@SuppressWarnings("unused")
 	public String customDeath(PlayerDeathEvent event) {

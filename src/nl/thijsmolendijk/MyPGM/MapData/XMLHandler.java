@@ -1,13 +1,15 @@
 package nl.thijsmolendijk.MyPGM.MapData;
 
 import java.io.File;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import nl.thijsmolendijk.MyPGM.TeamData;
 import nl.thijsmolendijk.MyPGM.Cores.Core;
 import nl.thijsmolendijk.MyPGM.Cores.CoreManager;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
+import nl.thijsmolendijk.MyPGM.Teams.TeamManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -21,6 +23,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XMLHandler {
+	static String[] colors = {"aqua", "black", "blue", "darkaqua", "darkblue", "darkgray", "darkgreen", "darkpurple",
+            "darkred", "gold", "gray", "green", "lightpurple", "red", "white", "yellow"};
+    static ChatColor[] colorsC = {ChatColor.AQUA, ChatColor.BLACK, ChatColor.BLUE, ChatColor.DARK_AQUA,
+            ChatColor.DARK_BLUE, ChatColor.DARK_GRAY, ChatColor.DARK_GREEN, ChatColor.DARK_PURPLE,
+            ChatColor.DARK_RED, ChatColor.GOLD, ChatColor.GRAY, ChatColor.GREEN,
+            ChatColor.LIGHT_PURPLE, ChatColor.RED, ChatColor.WHITE, ChatColor.YELLOW};
 	public static MapData getMapData(String mapName, World world) throws Exception {
 
 	 	//Try to load the map .xml
@@ -35,12 +43,6 @@ public class XMLHandler {
 		Element ed = doc.getDocumentElement();
 		System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 	 
-		NodeList nListRedInv = doc.getElementsByTagName("redInv");
-		Node redInvItems = nListRedInv.item(0);
-		NodeList redInv = redInvItems.getChildNodes();
-		NodeList nListBlueInv = doc.getElementsByTagName("blueInv");
-		Node blueInvItems = nListBlueInv.item(0);
-		NodeList blueInv = blueInvItems.getChildNodes();
 		MapData data = new MapData("", "", "", 0);
 		if (notExists(ed, "author")) throw new Exception("Tag \"author\" doesn't exist");
 		data.author = doc.getElementsByTagName("author").item(0).getTextContent();
@@ -50,14 +52,6 @@ public class XMLHandler {
 		
 		if (notExists(ed, "type")) throw new Exception("Tag \"type\" doesn't exist");
 		data.gameType = doc.getElementsByTagName("type").item(0).getTextContent();
-		
-		if (notExists(ed, "redCorePos")) throw new Exception("Tag \"redCorePos\" doesn't exist");
-		String[] redCoreData = doc.getElementsByTagName("redCorePos").item(0).getTextContent().split(":");
-		data.redCoreLocation = new Location(world, Integer.parseInt(redCoreData[0]), Integer.parseInt(redCoreData[1]), Integer.parseInt(redCoreData[2]));
-		
-		if (notExists(ed, "blueCorePos")) throw new Exception("Tag \"blueCorePos\" doesn't exist");
-		String[] blueCoreData = doc.getElementsByTagName("blueCorePos").item(0).getTextContent().split(":");
-		data.blueCoreLocation = new Location(world, Integer.parseInt(blueCoreData[0]), Integer.parseInt(blueCoreData[1]), Integer.parseInt(blueCoreData[2]));
 		
 		if (notExists(ed, "coreRadius")) throw new Exception("Tag \"coreRadius\" doesn't exist");
 		data.coreRadius = Integer.parseInt(doc.getElementsByTagName("coreRadius").item(0).getTextContent());
@@ -85,12 +79,96 @@ public class XMLHandler {
 		data.matchLenght = Integer.parseInt(doc.getElementsByTagName("lenght").item(0).getTextContent());
 		data.spawnProtectionRadius = Integer.parseInt(doc.getElementsByTagName("spawnProtectionRadius").item(0).getTextContent());
 		data.cores = new CoreManager();
-		if (notExists(ed, "redSpawn")) throw new Exception("Tag \"redSpawn\" doesn't exist");
-		String[] redSpawnData = doc.getElementsByTagName("redSpawn").item(0).getTextContent().split(":");
 		
-		if (notExists(ed, "blueSpawn")) throw new Exception("Tag \"blueSpawn\" doesn't exist");
-		String[] blueSpawnData = doc.getElementsByTagName("blueSpawn").item(0).getTextContent().split(":");
+        
+		if (notExists(ed, "changeBowProjectile")) { data.changeBowProjectile = false; } else {
+			Node bowNode = doc.getElementsByTagName("changeBowProjectile").item(0);
+			if (bowNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element bowElement = (Element) bowNode;
+				data.changeBowProjectile = true;
+				data.newBowEntity = bowElement.getElementsByTagName("entity").item(0).getTextContent();
+				data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
+			}
+		}
+		data.teams = new TeamManager();
+		data = addCores(doc, world, data);
+		data = addTeams(doc, world, data);
+		return data;
 		
+	}
+	 
+	public static boolean notExists(Element node, String str) {
+		if (node.getElementsByTagName(str).getLength() < 1) {
+			return true;
+		}
+		return false;
+	}
+	public static MapData addCores(Document doc, World world, MapData map) throws Exception {
+		Element ed = doc.getDocumentElement();
+		if (notExists(ed, "cores")) throw new Exception("No cores found");
+		Node coreNode = doc.getElementsByTagName("cores").item(0);
+		if (coreNode.getNodeType() == Node.ELEMENT_NODE) {
+			Element coreElement = (Element) coreNode;
+			NodeList cores = coreElement.getChildNodes();
+			for (int i = 0; i < cores.getLength(); i++) {
+				Node node = cores.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element e = (Element) node;
+					String id = e.getAttribute("id");
+					if (map.cores.coreByID(id) != null) throw new Exception("Each core should have a individual id");
+					String[] spawnData = e.getElementsByTagName("centerLocation").item(0).getTextContent().split(":");
+					Location center = new Location(world,Integer.parseInt(spawnData[0]),Integer.parseInt(spawnData[1]),Integer.parseInt(spawnData[2]));
+					int radius = Integer.parseInt(e.getElementsByTagName("radius").item(0).getTextContent());
+					boolean red = Boolean.parseBoolean(e.getElementsByTagName("redTeam").item(0).getTextContent());
+					Core c = new Core(id, null, center, radius, red);
+					map.cores.addCore(c);
+					System.out.println(map.cores);
+				}
+			}
+		}
+		return map;
+	}
+	public static MapData addTeams(Document doc, World world, MapData map) throws Exception {
+		Element ed = doc.getDocumentElement();
+		if (notExists(ed, "teams")) throw new Exception("No teams found");
+		Node coreNode = doc.getElementsByTagName("teams").item(0);
+		if (coreNode.getNodeType() == Node.ELEMENT_NODE) {
+			Element coreElement = (Element) coreNode;
+			NodeList cores = coreElement.getChildNodes();
+			for (int i = 0; i < cores.getLength(); i++) {
+				Node node = cores.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					Element e = (Element) node;
+					String id = e.getAttribute("id");
+					if (map.teams.teamForID(id) != null) throw new Exception("Each team should have a individual id");
+					String name = e.getElementsByTagName("name").item(0).getTextContent();
+					String rawColor = e.getElementsByTagName("color").item(0).getTextContent();
+					String joinArg = e.getElementsByTagName("joinArg").item(0).getTextContent();
+					int size = Integer.parseInt(e.getElementsByTagName("size").item(0).getTextContent());
+					String[] spawnData = e.getElementsByTagName("spawn").item(0).getTextContent().split(":");
+					Location center = new Location(world,Integer.parseInt(spawnData[0]),Integer.parseInt(spawnData[1]),Integer.parseInt(spawnData[2]));
+					ChatColor color = ChatColor.RED;
+					for (int i1 = 0; i1 < colors.length; i1++) {
+						
+						if (colors[i1].equals(rawColor)) {
+							
+							color = colorsC[i1];
+						}
+					}
+					TeamData teamData = new TeamData(name, size, color);
+					teamData.id = id;
+					teamData.spawn = center;
+					teamData.joinArg = joinArg;
+					teamData.spawnInventory = addInv(((Element) e.getElementsByTagName("inventory").item(0)).getChildNodes());
+					map.teams.addTeam(teamData);
+				}
+			}
+		}
+		map.teams.logTeams();
+		return map;
+	}
+	public static HashMap<String, ItemStack> addInv(NodeList redInv) {
+		HashMap<String, ItemStack> data = new HashMap<String, ItemStack>();
 		for (int temp = 0; temp < redInv.getLength(); temp++) {
 			Node nNode = redInv.item(temp);
 			if (nNode.getNodeName().equals("entry")) {
@@ -114,122 +192,9 @@ public class XMLHandler {
 					itemMeta.setDisplayName(element.getAttribute("displayName"));
 					item.setItemMeta(itemMeta);
 				}
-				data.redInv.put(itemData[0], item);
+				data.put(itemData[0], item);
 			}
 		}
-		for (int temp = 0; temp < blueInv.getLength(); temp++) {
-			Node nNode = blueInv.item(temp);
-			if (nNode.getNodeName().equals("entry")) {
-				String[] itemData = nNode.getTextContent().split(":");
-				itemData[0] = itemData[0].replace("\n", "").replace(" ", "");
-				ItemStack item = new ItemStack(Integer.parseInt(itemData[1]), Integer.parseInt(itemData[2]), (short) Integer.parseInt(itemData[3]));
-				Element element = (Element) nNode;
-				if (element.hasAttribute("enchantment")) {
-					
-					for (int i = 0; i < element.getAttribute("enchantment").split(",").length; i++) {
-						String rawEnch = element.getAttribute("enchantment").split(",")[i];
-						String enchantment = rawEnch.split(":")[0];
-						String level = rawEnch.split(":")[1];
-						Enchantment e = Enchantment.getByName(enchantment);
-						item.addUnsafeEnchantment(e, Integer.parseInt(level));
-						System.out.println("Enchantment: "+enchantment+", level: "+level);
-					}
-				}
-				if (element.hasAttribute("displayName")) {
-					ItemMeta itemMeta = item.getItemMeta();
-					itemMeta.setDisplayName(element.getAttribute("displayName"));
-					item.setItemMeta(itemMeta);
-				}
-				data.blueInv.put(itemData[0], item);
-			}
-		}
-		data.redSpawn = new Location(world,Integer.parseInt(redSpawnData[0]),Integer.parseInt(redSpawnData[1]),Integer.parseInt(redSpawnData[2]));
-		data.blueSpawn = new Location(world,Integer.parseInt(blueSpawnData[0]),Integer.parseInt(blueSpawnData[1]),Integer.parseInt(blueSpawnData[2]));
-		//Teams
-		String[] colors = {"aqua", "black", "blue", "darkaqua", "darkblue", "darkgray", "darkgreen", "darkpurple",
-                "darkred", "gold", "gray", "green", "lightpurple", "red", "white", "yellow"};
-        	ChatColor[] colorsC = {ChatColor.AQUA, ChatColor.BLACK, ChatColor.BLUE, ChatColor.DARK_AQUA,
-                ChatColor.DARK_BLUE, ChatColor.DARK_GRAY, ChatColor.DARK_GREEN, ChatColor.DARK_PURPLE,
-                ChatColor.DARK_RED, ChatColor.GOLD, ChatColor.GRAY, ChatColor.GREEN,
-                ChatColor.LIGHT_PURPLE, ChatColor.RED, ChatColor.WHITE, ChatColor.YELLOW};
-        if (notExists(ed, "teamOne")) throw new Exception("Tag \"teamOne\" doesn't exist");
-        Node teamOneNode = doc.getElementsByTagName("teamOne").item(0);
-		if (teamOneNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element teamOneElement = (Element) teamOneNode;
-			String teamOneName = teamOneElement.getElementsByTagName("name").item(0).getTextContent();
-			String teamOneMaxSize = teamOneElement.getElementsByTagName("maxSize").item(0).getTextContent();
-			String teamOneColorRAW = teamOneElement.getElementsByTagName("color").item(0).getTextContent();
-			String joinArgOne = teamOneElement.getElementsByTagName("joinArg").item(0).getTextContent();
-			ChatColor teamOneColor = ChatColor.RED;
-			for (int i = 0; i < colors.length; i++) {
-				
-				if (colors[i].equals(teamOneColorRAW)) {
-					
-					teamOneColor = colorsC[i];
-				}
-			}
-			data.teamOne = new TeamData(teamOneName, Integer.parseInt(teamOneMaxSize), teamOneColor);
-			data.teamOne.joinArg = joinArgOne;
-		}
-		if (notExists(ed, "teamTwo")) throw new Exception("Tag \"teamTwo\" doesn't exist");
-		Node teamTwoNode = doc.getElementsByTagName("teamTwo").item(0);
-		if (teamTwoNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element teamTwoElement = (Element) teamTwoNode;
-			String teamTwoName = teamTwoElement.getElementsByTagName("name").item(0).getTextContent();
-			String teamTwoMaxSize = teamTwoElement.getElementsByTagName("maxSize").item(0).getTextContent();
-			String teamTwoColorRAW = teamTwoElement.getElementsByTagName("color").item(0).getTextContent();
-			String joinArgTwo = teamTwoElement.getElementsByTagName("joinArg").item(0).getTextContent();
-			ChatColor teamTwoColor = ChatColor.BLUE;
-			for (int i = 0; i < colors.length; i++) {
-				if (colors[i].equals(teamTwoColorRAW)) {
-					teamTwoColor = colorsC[i];
-				}
-			}
-			data.teamTwo = new TeamData(teamTwoName, Integer.parseInt(teamTwoMaxSize), teamTwoColor);
-			data.teamTwo.joinArg = joinArgTwo;
-		}
-		if (notExists(ed, "changeBowProjectile")) { data.changeBowProjectile = false; } else {
-			Node bowNode = doc.getElementsByTagName("changeBowProjectile").item(0);
-			if (bowNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element bowElement = (Element) bowNode;
-				data.changeBowProjectile = true;
-				data.newBowEntity = bowElement.getElementsByTagName("entity").item(0).getTextContent();
-				data.newBowVelocity = Float.parseFloat(bowElement.getElementsByTagName("velocity").item(0).getTextContent());
-			}
-		}
-		data = addCores(doc, world, data);
 		return data;
-		
-	}
-	 
-	public static boolean notExists(Element node, String str) {
-		if (node.getElementsByTagName(str).getLength() < 1) {
-			return true;
-		}
-		return false;
-	}
-	public static MapData addCores(Document doc, World world, MapData map) throws Exception {
-		Element ed = doc.getDocumentElement();
-		if (notExists(ed, "cores")) throw new Exception("No cores found");
-		Node coreNode = doc.getElementsByTagName("cores").item(0);
-		if (coreNode.getNodeType() == Node.ELEMENT_NODE) {
-			Element coreElement = (Element) coreNode;
-			NodeList cores = coreElement.getChildNodes();
-			for (int i = 0; i < cores.getLength(); i++) {
-				Node node = cores.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					Element e = (Element) node;
-					String id = e.getAttribute("id");
-					String[] spawnData = e.getElementsByTagName("centerLocation").item(0).getTextContent().split(":");
-					Location center = new Location(world,Integer.parseInt(spawnData[0]),Integer.parseInt(spawnData[1]),Integer.parseInt(spawnData[2]));
-					int radius = Integer.parseInt(e.getElementsByTagName("radius").item(0).getTextContent());
-					boolean red = Boolean.parseBoolean(e.getElementsByTagName("redTeam").item(0).getTextContent());
-					Core c = new Core(id, null, center, radius, red);
-					map.cores.addCore(c);
-					System.out.println(map.cores);
-				}
-			}
-		}
-		return map;
 	}
 }

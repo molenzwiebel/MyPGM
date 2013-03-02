@@ -1,6 +1,9 @@
 package nl.thijsmolendijk.MyPGM.Commands;
 
+import java.util.Random;
+
 import nl.thijsmolendijk.MyPGM.*;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -35,8 +38,9 @@ public class JoinCommand implements CommandExecutor {
 					p.setDisplayName(ChatColor.AQUA+p.getName()+ChatColor.RESET);
 					this.plugin.spectators.remove(p.getName());
 					this.plugin.spectators.add(p.getName());
-					this.plugin.teamOne.remove(p.getName());
-					this.plugin.teamTwo.remove(p.getName());
+					for (TeamData s : this.plugin.currentMap.teams.teams) {
+						s.members.remove(p.getName());
+					}
 					p.teleport(this.plugin.currentMap.world.getSpawnLocation());
 					p.getInventory().clear();
 					p.setItemInHand(new ItemStack(Material.COMPASS, 1));
@@ -51,55 +55,51 @@ public class JoinCommand implements CommandExecutor {
 				//Join red
 				if (args.length < 1) return false;
 				if (args[0].equalsIgnoreCase(this.plugin.currentMap.teamOne.joinArg)) {
-					return this.joinOne(p);
+					try {
+						return this.joinTeam(this.plugin.currentMap.teams.teamForJoinArg(args[0]), p);
+					} catch (Exception e) {
+						p.sendMessage(e.getMessage());
+					}
 				}
 				//Join blue
 				if (args[0].equalsIgnoreCase(this.plugin.currentMap.teamTwo.joinArg)) {
-					return this.joinTwo(p);
+					try {
+						return this.joinTeam(this.plugin.currentMap.teams.teamForJoinArg(args[0]), p);
+					} catch (Exception e) {
+						p.sendMessage(e.getMessage());
+					}
 				}
 			} else {
 				//Player is no op! Chosing a random team
 				//Return if the arguments are more than 0
 				if (args.length > 0) return false;
-				if (this.plugin.teamOne.contains(p.getName()) || this.plugin.teamTwo.contains(p.getName())) return false;
-				boolean random = Tools.getRandomBoolean();
-				//Random is true, try to join tean one
-				if (random) {
-					if (this.plugin.teamOne.size() < this.plugin.currentMap.teamOne.maxSize) {
-						//random = true, place in one
-						return this.joinOne(p);
-					} else {
-						//random = true, no place in one
-						random = false;
-					}
+				for (TeamData s : this.plugin.currentMap.teams.teams) {
+					if (s.members.contains(p.getName())) return false;;
 				}
-				if (!random) {
-					//Random is false, try to join team two
-					if (this.plugin.teamTwo.size() < this.plugin.currentMap.teamTwo.maxSize) {
-						//random = false, place in two
-						return this.joinTwo(p);
-					} else if (this.plugin.teamOne.size() < this.plugin.currentMap.teamOne.maxSize) {
-						//random = false, no place in two, place in one
-						return this.joinOne(p);
-					}
+				boolean notFull = false;
+				for (TeamData d : this.plugin.currentMap.teams.teams) {
+					if (!d.isFull()) notFull = true;
 				}
+				int random = Tools.showRandomInteger(0, this.plugin.currentMap.teams.teams.size(), new Random());
+				TeamData team = this.randomTeam(random);
 				//random is false, no place in one and two
-				p.sendMessage(ChatColor.RED+"The teams are full!");
-				return true;
+				if (!notFull) {
+					p.sendMessage(ChatColor.RED+"The teams are full!");
+					return true;
+				}
+				return this.joinTeam(team, p);
 			}
 		}
 		return true;
 	}
-	public boolean joinOne(Player p) {
-		if (this.plugin.teamOne.contains(p.getName())) return false;
-		p.sendMessage(ChatColor.GOLD+"You joined "+this.plugin.currentMap.teamOne.preColor+this.plugin.currentMap.teamOne.name);
+	public boolean joinTeam(TeamData data, Player p) {
+		if (data.members.contains(p.getName())) return false;
+		p.sendMessage(ChatColor.GOLD+"You joined "+data.preColor+data.name);
 		if (this.plugin.currentMap.inProgress) {
-			p.setDisplayName(this.plugin.currentMap.teamOne.preColor+p.getName()+ChatColor.RESET);
-			this.plugin.teamOne.remove(p.getName());
-			this.plugin.teamOne.add(p.getName());
-			this.plugin.teamTwo.remove(p.getName());
+			p.setDisplayName(data.preColor+p.getName()+ChatColor.RESET);
+			this.plugin.currentMap.teams.removePlayerFromAllTeams(p);
 			if (this.plugin.spectators.contains(p.getName())) {
-				p.teleport(this.plugin.currentMap.redSpawn);
+				p.teleport(data.spawn);
 				p.getInventory().clear();
 				for (ItemStack i : p.getInventory().getArmorContents()) {
 					i.setType(Material.AIR);
@@ -110,60 +110,26 @@ public class JoinCommand implements CommandExecutor {
 					p.removePotionEffect(effect.getType());
 				}
 				this.plugin.spectators.remove(p.getName());
-				Tools.addItemsToPlayerInv(p, this.plugin.currentMap.redInv);
+				Tools.addItemsToPlayerInv(p, data.spawnInventory);
 			} else {
 				this.plugin.spectators.remove(p.getName());
 				p.setHealth(0);
 			}
 			Tools.showPlayer(p);
 		} else {
-			p.setDisplayName(this.plugin.currentMap.teamOne.preColor+p.getName()+ChatColor.RESET);
-			this.plugin.teamOne.remove(p.getName());
-			this.plugin.teamOne.add(p.getName());
-			this.plugin.teamTwo.remove(p.getName());
+			p.setDisplayName(data.preColor+p.getName()+ChatColor.RESET);
+			this.plugin.currentMap.teams.removePlayerFromAllTeams(p);
+			data.members.add(p.getName());
 			this.plugin.spectators.remove(p.getName());
 			this.plugin.spectators.add(p.getName());
 		}
 		return true;
 	}
-	//Let player p join team two
-	//TODO: Change name to joinTwo
-	public boolean joinTwo(Player p) {
-		if (this.plugin.teamTwo.contains(p.getName())) return false;
-		p.sendMessage(ChatColor.GOLD+"You joined "+this.plugin.currentMap.teamTwo.preColor+this.plugin.currentMap.teamTwo.name);
-		if (this.plugin.currentMap.inProgress) {
-			p.setDisplayName(this.plugin.currentMap.teamTwo.preColor+p.getName()+ChatColor.RESET);
-			this.plugin.teamOne.remove(p.getName());
-			this.plugin.teamTwo.remove(p.getName());
-			this.plugin.teamTwo.add(p.getName());
-			if (this.plugin.spectators.contains(p.getName())) {
-				p.sendMessage("You were a spectator");
-				p.teleport(this.plugin.currentMap.redSpawn);
-				p.getInventory().clear();
-				for (ItemStack i : p.getInventory().getArmorContents()) {
-					i.setType(Material.AIR);
-				}
-				p.setFoodLevel(20);
-				p.setHealth(20);
-				for (PotionEffect effect : p.getActivePotionEffects()) {
-					p.removePotionEffect(effect.getType());
-				}
-				this.plugin.spectators.remove(p.getName());
-				Tools.addItemsToPlayerInv(p, this.plugin.currentMap.blueInv);
-			} else {
-				this.plugin.spectators.remove(p.getName());
-				p.setHealth(0);
-			}
-			Tools.showPlayer(p);
-		
-		} else {
-			p.setDisplayName(this.plugin.currentMap.teamTwo.preColor+p.getName()+ChatColor.RESET);
-			this.plugin.spectators.remove(p.getName());
-			this.plugin.spectators.add(p.getName());
-			this.plugin.teamOne.remove(p.getName());
-			this.plugin.teamTwo.remove(p.getName());
-			this.plugin.teamTwo.add(p.getName());
-		}
-		return true;
+	public TeamData randomTeam(int team) {
+		int Low = 0;
+		int High = this.plugin.currentMap.teams.teams.size();
+		int R = new Random().nextInt(High-Low) + Low;
+		if (this.plugin.currentMap.teams.teams.get(R).isFull()) return this.randomTeam(R);
+		return this.plugin.currentMap.teams.teams.get(R);
 	}
 }

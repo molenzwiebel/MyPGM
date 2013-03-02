@@ -1,6 +1,7 @@
 package nl.thijsmolendijk.MyPGM.Listeners;
 
 import nl.thijsmolendijk.MyPGM.Main;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,25 +31,8 @@ public class ChatListener implements Listener {
 	//Handle team chat
 		@EventHandler()
 		public void onChatEvent(AsyncPlayerChatEvent event) {
-			if (this.plugin.teamOne.contains(event.getPlayer().getName())) {
-				event.setCancelled(true);
-				for (String pName : this.plugin.teamOne) {
-					Player p = this.plugin.getServer().getPlayer(pName);
-					String message = this.plugin.currentMap.teamOne.preColor+"[Team] "+event.getPlayer().getName()+": "+ChatColor.RESET+event.getMessage();
-					p.sendMessage(message);
-				}
-				return;
-			}
-			if (this.plugin.teamTwo.contains(event.getPlayer().getName())) {
-				event.setCancelled(true);
-				for (String pName : this.plugin.teamTwo) {
-					Player p = this.plugin.getServer().getPlayer(pName);
-					String message = this.plugin.currentMap.teamTwo.preColor+"[Team] "+event.getPlayer().getName()+": "+ChatColor.RESET+event.getMessage();
-					p.sendMessage(message);
-				}
-				return;
-			}
-			if (this.plugin.spectators.contains(event.getPlayer().getName())) {
+			TeamData team = this.plugin.currentMap.teams.teamForPlayer(event.getPlayer());
+			if (team == null) {
 				event.setCancelled(true);
 				for (String pName : this.plugin.spectators) {
 					Player p = this.plugin.getServer().getPlayer(pName);
@@ -56,6 +40,11 @@ public class ChatListener implements Listener {
 					p.sendMessage(message);
 				}
 				return;
+			}
+			for (String str : team.members) {
+				Player p = this.plugin.getServer().getPlayer(str);
+				String message = team.preColor+"[Team] "+event.getPlayer().getName()+": "+ChatColor.RESET+event.getMessage();
+				p.sendMessage(message);
 			}
 		}
 	

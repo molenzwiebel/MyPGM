@@ -2,8 +2,9 @@ package nl.thijsmolendijk.MyPGM.MapData;
 
 import java.util.HashMap;
 
-import nl.thijsmolendijk.MyPGM.TeamData;
 import nl.thijsmolendijk.MyPGM.Cores.CoreManager;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
+import nl.thijsmolendijk.MyPGM.Teams.TeamManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -37,6 +38,7 @@ public class MapData {
 	public String newBowEntity;
 	public float newBowVelocity;
 	public CoreManager cores;
+	public TeamManager teams;
 	public MapData(String name, String author, String realName, int matchLenght) {
 		this.name = name;
 		this.author = author;

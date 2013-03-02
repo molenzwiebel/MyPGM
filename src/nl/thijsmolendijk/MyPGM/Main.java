@@ -17,6 +17,7 @@ import nl.thijsmolendijk.MyPGM.Listeners.ObserverListener;
 import nl.thijsmolendijk.MyPGM.Listeners.PlayerDamageListener;
 import nl.thijsmolendijk.MyPGM.Listeners.RuleListeners;
 import nl.thijsmolendijk.MyPGM.MapData.MapData;
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -28,8 +29,7 @@ import org.bukkit.potion.PotionEffect;
 public class Main extends JavaPlugin {
 	//Variables (teams, etc...)
 	public List<String> spectators;
-	public List<String> teamOne;
-	public List<String> teamTwo;
+	
 	public int scoreOne;
 	public int scoreTwo;
 	public MapData currentMap;
@@ -55,8 +55,7 @@ public class Main extends JavaPlugin {
 		this.getCommand("set").setExecutor(new SetCommand(this));
 		//Initting variables
 		spectators = new ArrayList<String>();
-		teamOne = new ArrayList<String>();
-		teamTwo = new ArrayList<String>();
+		
 		currentMap = new MapData("","","",0);
 		scoreOne = 1;
 	}
@@ -67,10 +66,10 @@ public class Main extends JavaPlugin {
 	//Start the game, handle teleporting to spawn and adding inventory items
 	public void startGame() {
 		this.currentMap.inProgress = true;
-		for (String pName : this.teamOne) {
-			this.spectators.remove(pName);
-			Player p = this.getServer().getPlayer(pName);
-			p.teleport(this.currentMap.redSpawn);
+		for (Player p : this.getServer().getOnlinePlayers()) {
+			this.spectators.remove(p.getName());
+			TeamData team = this.currentMap.teams.teamForPlayer(p);
+			p.teleport(team.spawn);
 			p.getInventory().clear();
 			for (ItemStack i : p.getInventory().getArmorContents()) {
 				i.setType(Material.AIR);
@@ -81,24 +80,7 @@ public class Main extends JavaPlugin {
 				p.removePotionEffect(effect.getType());
 			}
 			Tools.showPlayer(p);
-			Tools.addItemsToPlayerInv(p, this.currentMap.redInv);
-			
-		}
-		for (String pName : this.teamTwo) {
-			this.spectators.remove(pName);
-			Player p = this.getServer().getPlayer(pName);
-			p.teleport(this.currentMap.blueSpawn);
-			p.getInventory().clear();
-			for (ItemStack i : p.getInventory().getArmorContents()) {
-				i.setType(Material.AIR);
-			}
-			p.setFoodLevel(20);
-			p.setHealth(20);
-			for (PotionEffect effect : p.getActivePotionEffects()) {
-				p.removePotionEffect(effect.getType());
-			}
-			Tools.showPlayer(p);
-			Tools.addItemsToPlayerInv(p, this.currentMap.blueInv);
+			Tools.addItemsToPlayerInv(p, team.spawnInventory);
 			
 		}
 		this.getServer().broadcastMessage(Tools.startMessage());

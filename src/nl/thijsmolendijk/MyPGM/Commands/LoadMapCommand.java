@@ -103,8 +103,7 @@ public class LoadMapCommand implements CommandExecutor {
 		}
 		for (Player p2 : this.plugin.getServer().getOnlinePlayers()) {
 			p2.setGameMode(GameMode.CREATIVE);
-			this.plugin.teamOne.remove(p2.getName());
-			this.plugin.teamTwo.remove(p2.getName());
+			this.plugin.currentMap.teams.removePlayerFromAllTeams(p2);
 			this.plugin.spectators.remove(p2.getName());
 			this.plugin.spectators.add(p2.getName());
 			for (ItemStack i : p.getInventory().getArmorContents()) {

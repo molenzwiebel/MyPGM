@@ -19,7 +19,7 @@ public class ObjectiveListener implements Listener {
 	@EventHandler()
 	public void onLiquidFlow(BlockFromToEvent event) {
 		if (!this.plugin.currentMap.gameType.equalsIgnoreCase("dtc")) return;
-		if (event.getBlock() == null) return;
+		if (event.getBlock() == null || event.getToBlock() == null) return;
 		Object[] data = this.getSourceOfBlock(new Object[] { event.getBlock(), 0 });
 		if (data[0] == null || data == null) return;
 		int radius = this.plugin.currentMap.coreRadius;
