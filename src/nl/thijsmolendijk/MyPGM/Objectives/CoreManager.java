@@ -1,4 +1,4 @@
-package nl.thijsmolendijk.MyPGM.Cores;
+package nl.thijsmolendijk.MyPGM.Objectives;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +18,15 @@ public class CoreManager {
 		boolean found = false;
 		String id = "";
 		for (Core c : cores) {
-			found = c.blockIsWithinCoreArea(data);
+			found = c.blockLiesInRegion(data);
 			if (found) id = c.id;
 		}
 		return new Pair(found, id);
 	}
 	public Core coreByID(String id) {
-		Core c = cores.get(0);
+		Core c = null;
 		for (Core core : cores) {
-			if (c.id.equals(id)) c = core;
+			if (core.id.equals(id)) c = core;
 		}
 		return c;
 	}

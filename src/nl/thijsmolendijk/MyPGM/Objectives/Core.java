@@ -1,24 +1,27 @@
-package nl.thijsmolendijk.MyPGM.Cores;
+package nl.thijsmolendijk.MyPGM.Objectives;
 
 import java.util.List;
+
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public class Core {
+public class Core implements Objective {
 	public List<String> team;
 	public Location center;
 	public int radius;
-	public boolean forTeamOne;
+	public TeamData owner;
 	public String id;
-	public Core(String id, List<String> t, Location c, int r, boolean f) {
+	public Core(String id, List<String> t, Location c, int r, TeamData f) {
 		this.id = id;
 		this.team = t;
 		this.center = c;
 		this.radius = r;
-		this.forTeamOne = f;
+		this.owner = f;
 	}
-	public boolean blockIsWithinCoreArea(Block b) {
+	@Override
+	public boolean blockLiesInRegion(Block b) {
 		for (int x = -(radius); x <= radius; x++) {
 			for (int y = -(radius); y <= radius; y++) {
 				for (int z = -(radius); z <= radius; z++) {

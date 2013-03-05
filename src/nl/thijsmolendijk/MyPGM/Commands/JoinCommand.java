@@ -54,21 +54,13 @@ public class JoinCommand implements CommandExecutor {
 				//Player is op, give him the ability to choose a team
 				//Join red
 				if (args.length < 1) return false;
-				if (args[0].equalsIgnoreCase(this.plugin.currentMap.teamOne.joinArg)) {
 					try {
 						return this.joinTeam(this.plugin.currentMap.teams.teamForJoinArg(args[0]), p);
 					} catch (Exception e) {
 						p.sendMessage(e.getMessage());
 					}
-				}
 				//Join blue
-				if (args[0].equalsIgnoreCase(this.plugin.currentMap.teamTwo.joinArg)) {
-					try {
-						return this.joinTeam(this.plugin.currentMap.teams.teamForJoinArg(args[0]), p);
-					} catch (Exception e) {
-						p.sendMessage(e.getMessage());
-					}
-				}
+				
 			} else {
 				//Player is no op! Chosing a random team
 				//Return if the arguments are more than 0

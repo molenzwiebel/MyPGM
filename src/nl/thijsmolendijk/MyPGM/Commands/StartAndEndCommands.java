@@ -37,7 +37,7 @@ public class StartAndEndCommands implements CommandExecutor {
 	}
 	public boolean forceEndCommand(Player p) {
 		if (!this.plugin.currentMap.inProgress) return false;
-		this.plugin.endGame();
+		this.plugin.endGameWithWinner(null, false);
 		this.plugin.getServer().getScheduler().cancelTask(this.plugin.timerHandler.countdownIDGame);
 		return true;
 	}

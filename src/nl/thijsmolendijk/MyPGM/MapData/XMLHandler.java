@@ -6,8 +6,8 @@ import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import nl.thijsmolendijk.MyPGM.Cores.Core;
-import nl.thijsmolendijk.MyPGM.Cores.CoreManager;
+import nl.thijsmolendijk.MyPGM.Objectives.Core;
+import nl.thijsmolendijk.MyPGM.Objectives.CoreManager;
 import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 import nl.thijsmolendijk.MyPGM.Teams.TeamManager;
 
@@ -91,8 +91,8 @@ public class XMLHandler {
 			}
 		}
 		data.teams = new TeamManager();
-		data = addCores(doc, world, data);
 		data = addTeams(doc, world, data);
+		data = addCores(doc, world, data);
 		return data;
 		
 	}
@@ -119,8 +119,8 @@ public class XMLHandler {
 					String[] spawnData = e.getElementsByTagName("centerLocation").item(0).getTextContent().split(":");
 					Location center = new Location(world,Integer.parseInt(spawnData[0]),Integer.parseInt(spawnData[1]),Integer.parseInt(spawnData[2]));
 					int radius = Integer.parseInt(e.getElementsByTagName("radius").item(0).getTextContent());
-					boolean red = Boolean.parseBoolean(e.getElementsByTagName("redTeam").item(0).getTextContent());
-					Core c = new Core(id, null, center, radius, red);
+					String red = e.getElementsByTagName("team").item(0).getTextContent();
+					Core c = new Core(id, null, center, radius, map.teams.teamForID(red));
 					map.cores.addCore(c);
 					System.out.println(map.cores);
 				}

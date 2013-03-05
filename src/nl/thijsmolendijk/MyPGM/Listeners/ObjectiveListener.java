@@ -2,7 +2,7 @@ package nl.thijsmolendijk.MyPGM.Listeners;
 
 import nl.thijsmolendijk.MyPGM.Main;
 import nl.thijsmolendijk.MyPGM.Pair;
-import nl.thijsmolendijk.MyPGM.Cores.Core;
+import nl.thijsmolendijk.MyPGM.Objectives.Core;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,27 +31,9 @@ public class ObjectiveListener implements Listener {
 						if (((Integer) data[1]) > 5) {
 							event.setCancelled(true);
 							Core c = this.plugin.currentMap.cores.coreByID((String) p.core());
-							if (c.forTeamOne) this.plugin.scoreOne = this.plugin.scoreTwo + 1;
-							if (!c.forTeamOne) this.plugin.scoreTwo = this.plugin.scoreOne + 1;
-							this.plugin.endGame();
+							this.plugin.endGameWithWinner(c.owner, true);
 						}
 					}
-//					if (this.plugin.currentMap.redCoreLocation.getBlock()
-//							.getRelative(x, y, z).equals(data[0])) {
-//						if (((Integer) data[1]) > 5) {
-//							event.setCancelled(true);
-//							this.plugin.scoreOne = this.plugin.scoreTwo + 1;
-//							this.plugin.endGame();
-//						}
-//					}
-//					if (this.plugin.currentMap.blueCoreLocation.getBlock()
-//							.getRelative(x, y, z).equals(data[0])) {
-//						if (((Integer) data[1]) > 5) {
-//							event.setCancelled(true);
-//							this.plugin.scoreTwo = this.plugin.scoreOne + 1;
-//							this.plugin.endGame();
-//						}
-//					}
 				}
 			}
 		}

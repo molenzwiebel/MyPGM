@@ -2,7 +2,7 @@ package nl.thijsmolendijk.MyPGM.MapData;
 
 import java.util.HashMap;
 
-import nl.thijsmolendijk.MyPGM.Cores.CoreManager;
+import nl.thijsmolendijk.MyPGM.Objectives.CoreManager;
 import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 import nl.thijsmolendijk.MyPGM.Teams.TeamManager;
 

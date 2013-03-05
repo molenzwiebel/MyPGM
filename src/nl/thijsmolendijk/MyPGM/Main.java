@@ -93,8 +93,18 @@ public class Main extends JavaPlugin {
 			this.timerHandler.forceTime(this.currentMap.timeToForce);
 		}
 	}
+	public void endGameTDM() {
+		int[] scores = {};
+		int index = 0;
+		for (TeamData t : this.currentMap.teams.teams) {
+			scores[index] = t.score;
+			index++;
+		}
+		int highest = Tools.highestNumber(scores);
+		this.endGameWithWinner(this.currentMap.teams.teams.get(highest), false);
+	}
 	//End the game, show a message based on the score
-	public void endGame() {
+	public void endGameWithWinner(TeamData winner, boolean lost) {
 		if (!this.currentMap.inProgress) return;
 		this.getServer().getScheduler().cancelTask(this.timerHandler.countdownIDMatchLength);
 		this.getServer().getScheduler().cancelTask(this.timerHandler.countdownIDGame);
@@ -106,15 +116,14 @@ public class Main extends JavaPlugin {
 			Tools.showPlayerNC(p);
 		}
 		this.currentMap.inProgress = false;
-		if (scoreOne < scoreTwo) {
-			this.getServer().broadcastMessage(Tools.redWonMessage(this));
+		if (winner != null) {
+			if (lost) {
+				this.getServer().broadcastMessage(Tools.lostMessage(this, winner));
+			} else {
+				this.getServer().broadcastMessage(Tools.wonMessage(this, winner));
+			}
 			return;
-		}
-		if (scoreTwo < scoreOne) {
-			this.getServer().broadcastMessage(Tools.blueWonMessage(this));
-			return;
-		}
-		if (scoreOne == scoreTwo) {
+		} else {
 			this.getServer().broadcastMessage(Tools.tieMessage(this));
 			return;
 		}

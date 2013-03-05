@@ -14,8 +14,11 @@ import java.net.URLConnection;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+
+import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,8 +26,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -252,34 +253,34 @@ public class Tools {
 		return "";
 	}
 	//Message to display when team one won
-	static public String redWonMessage(Main plugin) {
-		String redTeamName = plugin.currentMap.teamOne.preColor + plugin.currentMap.teamOne.name;
-		String lenghtToBe = Tools.stringWithTokens("#", 5+redTeamName.length());
-		String message = ChatColor.LIGHT_PURPLE+ Tools.stringWithTokens("#", 5+redTeamName.length()) +" \n" +
-				         ChatColor.LIGHT_PURPLE+ " Game ended!"+Tools.stringWithTokens(" ", lenghtToBe.length()+19)+" \n" +
-				         ChatColor.LIGHT_PURPLE+ " "+redTeamName+" wins!     \n" +
-				         ChatColor.LIGHT_PURPLE+ Tools.stringWithTokens("#", 5+redTeamName.length());
-		message = message.replace("Game", ChatColor.GOLD+"Game");
-		message = message.replace("!", "!"+ChatColor.LIGHT_PURPLE);
-		return message;
-	}
 	//Message to display when blue team won
-	static public String blueWonMessage(Main plugin) {
-		String redTeamName = plugin.currentMap.teamTwo.preColor + plugin.currentMap.teamTwo.name;
-		String message = ChatColor.LIGHT_PURPLE+ Tools.stringWithTokens("#", 5+redTeamName.length()) +" \n" +
-				         ChatColor.LIGHT_PURPLE+ " Game ended!"+Tools.stringWithTokens(" ", redTeamName.length()-3)+"  \n" +
-				         ChatColor.LIGHT_PURPLE+ " "+redTeamName+" wins!    \n" +
-				         ChatColor.LIGHT_PURPLE+ Tools.stringWithTokens("#", 5+redTeamName.length());
+	static public String wonMessage(Main plugin, TeamData team) {
+		String redTeamName = team.preColor + team.name;
+		String message = ChatColor.LIGHT_PURPLE+ "Game ended!" +
+				         ChatColor.LIGHT_PURPLE+ redTeamName+" wins!";
 		message = message.replace("Game", ChatColor.GOLD+"Game");
 		message = message.replace("!", "!"+ChatColor.LIGHT_PURPLE);
 		return message;
 	}
 	//Message to display when it is a tie
+	static public String lostMessage(Main plugin, TeamData team) {
+		List<TeamData> teams = new ArrayList<TeamData>();
+		for (TeamData t : plugin.currentMap.teams.teams) {
+			if (!t.equals(team)) teams.add(t);
+		}
+		StringBuilder b = new StringBuilder("");
+		for (TeamData d : teams) {
+			b.append(d.preColor+d.name+", ");
+		}
+		String message = ChatColor.LIGHT_PURPLE+ "Game ended! \n" +
+						 ChatColor.GOLD+b.toString().substring(0, b.toString().length()-2)+ChatColor.GOLD+" won!";
+		message = message.replace(" Game", ChatColor.GOLD+"Game");
+		message = message.replace("!", "!"+ChatColor.LIGHT_PURPLE);
+		return message;
+	}
 	static public String tieMessage(Main plugin) {
-		String message = ChatColor.LIGHT_PURPLE+ "############## \n" +
-				         ChatColor.LIGHT_PURPLE+ "# Game ended!   # \n" +
-				         ChatColor.LIGHT_PURPLE+ "# It's a tie!        # \n" +
-				         ChatColor.LIGHT_PURPLE+ "##############";
+		String message = ChatColor.LIGHT_PURPLE+ "Game ended!\n" +
+				         ChatColor.LIGHT_PURPLE+ "It's a tie!\n";
 		message = message.replace("Game", ChatColor.GOLD+"Game");
 		message = message.replace("It's", ChatColor.AQUA+"It's");
 		message = message.replace("!", "!"+ChatColor.LIGHT_PURPLE);
@@ -321,14 +322,6 @@ public class Tools {
 		}
 		return str;
 	}
-	//Unused function to determine if a block is next to a lava block
-	public static boolean hasLava(Block block ){
-	    if( block.getRelative(BlockFace.NORTH).getType().equals(Material.LAVA)) return true;
-	    if( block.getRelative(BlockFace.SOUTH).getType().equals(Material.LAVA)) return true;
-	    if( block.getRelative(BlockFace.EAST).getType().equals(Material.LAVA)) return true;
-	    if( block.getRelative(BlockFace.WEST).getType().equals(Material.LAVA)) return true;
-	    return false;
-	}
 	public static int showRandomInteger(int aStart, int aEnd, Random aRandom){
 	    if ( aStart > aEnd ) {
 	      throw new IllegalArgumentException("Start cannot exceed End.");
@@ -340,4 +333,15 @@ public class Tools {
 	    int randomNumber =  (int)(fraction + aStart);    
 	    return randomNumber;
 	  }
+	public static int highestNumber(int[] numbers) {
+		int max = numbers[0];
+		for (int counter = 1; counter < numbers.length; counter++)
+		{
+		     if (numbers[counter] > max)
+		     {
+		      max = numbers[counter];
+		     }
+		}
+		return max;
+	}
 }
