@@ -45,7 +45,6 @@ public class XMLCommands implements CommandExecutor {
 				if (i.equals(p.getInventory().getItem(slot))) {
 					if (!(map.containsKey(String.valueOf(slot)))) {
 						map.put(String.valueOf(slot), i);
-						System.out.println("Item: "+i.getType().toString()+", Slot: "+slot);
 					} else {
 						continue;
 					}
@@ -61,7 +60,6 @@ public class XMLCommands implements CommandExecutor {
 			p.sendMessage(Tools.uploadToPasteBin(map));
 		} catch (Exception e) {
 			p.sendMessage(ChatColor.RED+"A error occured, please try again.");
-			System.out.println(e.getMessage());
 		}
 		return true;
 	}

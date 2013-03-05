@@ -32,11 +32,6 @@ public class TeamManager {
 		}
 		return result;
 	}
-	public void logTeams() {
-		for (TeamData d : this.teams) {
-			System.out.println(d.id+", "+d.name+", "+d.preColor+", "+d.spawnInventory);
-		}
-	}
 	public void removePlayerFromAllTeams(Player p) {
 		for (TeamData s : this.teams) {
 			s.members.remove(p.getName());

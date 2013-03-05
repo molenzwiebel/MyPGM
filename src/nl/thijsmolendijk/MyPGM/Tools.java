@@ -79,7 +79,6 @@ public class Tools {
 		    	return;
 		    }
 		    else if (clazzType.toString().equals("class org.bukkit.Location")) {
-		    	System.out.println("Setting location field!");
 		    	String[] info = ((String) value).split(":");
 		    	if (info.length != 3) {
 		    		throw new Exception("Location format should be x:y:z");
@@ -89,7 +88,6 @@ public class Tools {
 		    	int y = Integer.parseInt(info[1]);
 		    	int z = Integer.parseInt(info[2]);
 		    	field.set(clazz, new Location(world, x, y, z));
-		    	System.out.println("Set location field to: "+ new Location(world, x, y, z));
 		    	return;
 		    }
 		     field.set(clazz, value); 
@@ -144,50 +142,44 @@ public class Tools {
 	    	}
 	}
 	//Delete folder file
-	public static void deleteFolder(File file)
-	    	throws IOException{
-	 
-	    	if(file.isDirectory()){
-	 
-	    		//directory is empty, then delete it
-	    		if(file.list().length==0){
-	 
-	    		   file.delete();
-	    		   System.out.println("Directory is deleted : " 
-	                                                 + file.getAbsolutePath());
-	 
-	    		}else{
-	 
-	    		   //list all the directory contents
-	        	   String files[] = file.list();
-	 
-	        	   for (String temp : files) {
-	        	      //construct the file structure
-	        	      File fileDelete = new File(file, temp);
-	 
-	        	      //recursive delete
-	        	     deleteFolder(fileDelete);
-	        	   }
-	 
-	        	   //check the directory again, if empty then delete it
-	        	   if(file.list().length==0){
-	           	     file.delete();
-	        	     System.out.println("Directory is deleted : " 
-	                                                  + file.getAbsolutePath());
-	        	   }
-	    		}
-	 
-	    	}else{
-	    		//if file, then delete it
-	    		file.delete();
-	    		System.out.println("File is deleted : " + file.getAbsolutePath());
-	    	}
+	public static void deleteFolder(File file) throws IOException {
+
+		if (file.isDirectory()) {
+
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+
+				file.delete();
+
+			} else {
+
+				// list all the directory contents
+				String files[] = file.list();
+
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+
+					// recursive delete
+					deleteFolder(fileDelete);
+				}
+
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+		}
 	}
 	//Function to set a player inventory to a hashmap
 	public static void addItemsToPlayerInv(Player p, HashMap<String, ItemStack> data) {
 		for (Entry<String, ItemStack> entry : data.entrySet()) {
 		    String key = entry.getKey();
-		    System.out.println("Key: "+key);
 		    ItemStack value = entry.getValue();
 		    p.getInventory().setItem(Integer.parseInt(key), value);
 		}
@@ -241,10 +233,8 @@ public class Tools {
 
 		String line;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		System.out.println(conn.getHeaderFields());
 		while ((line = reader.readLine()) != null) {
 		    if (line.contains("<title>")) {
-		    	System.out.println("http://dpaste.com/"+line.replace("<title>", "").replace("</title>", "").replace("dpaste: #", ""));
 		    	return "http://dpaste.com/"+line.replace("<title>", "").replace("</title>", "").replace("dpaste: #", "").replace("	","");
 		    }
 		}

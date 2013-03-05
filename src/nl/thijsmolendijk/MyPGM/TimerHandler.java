@@ -38,7 +38,6 @@ public class TimerHandler {
 				}
 		 
 				if(count == 0){
-					System.out.println(ChatColor.GREEN+"Starting game!");
 					plugin.endGameTDM();
 					Bukkit.getScheduler().cancelTask(countdownIDGame);
 				}
@@ -67,7 +66,6 @@ public class TimerHandler {
 				}
 		 
 				if(count == 0){
-					System.out.println(ChatColor.GREEN+"Starting game!");
 					pluginInstance.startGame();
 					Bukkit.getScheduler().cancelTask(countdownIDStart);
 				}

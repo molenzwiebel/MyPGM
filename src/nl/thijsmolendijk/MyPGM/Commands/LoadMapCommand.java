@@ -38,7 +38,6 @@ public class LoadMapCommand implements CommandExecutor {
 		this.plugin.scoreOne = 0;
 		this.plugin.scoreTwo = 0;
 		this.plugin.timerHandler.timeLeft = 0;
-		System.out.println("LM Command triggered");
 		//Return if missing arguments
 		if (args.length > 1 || args.length == 0) return false;
 		
@@ -94,7 +93,6 @@ public class LoadMapCommand implements CommandExecutor {
 			e.printStackTrace();
 			return true;
 		}
-		System.out.println("Map name: "+data.name+", author: "+data.author);
 		for (Player pToTP : this.plugin.getServer().getOnlinePlayers()) {
 			pToTP.sendMessage(ChatColor.GOLD+"Cycling to: "+ChatColor.LIGHT_PURPLE+data.name);
 			pToTP.sendMessage(ChatColor.GOLD+"Map by: "+ChatColor.LIGHT_PURPLE+data.author);

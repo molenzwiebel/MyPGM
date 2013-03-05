@@ -40,9 +40,7 @@ public class XMLHandler {
 		//optional, but recommended
 		//read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 		doc.getDocumentElement().normalize();
-		Element ed = doc.getDocumentElement();
-		System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-	 
+		Element ed = doc.getDocumentElement();	 
 		MapData data = new MapData("", "", "", 0);
 		if (notExists(ed, "author")) throw new Exception("Tag \"author\" doesn't exist");
 		data.author = doc.getElementsByTagName("author").item(0).getTextContent();
@@ -122,7 +120,6 @@ public class XMLHandler {
 					String red = e.getElementsByTagName("team").item(0).getTextContent();
 					Core c = new Core(id, null, center, radius, map.teams.teamForID(red));
 					map.cores.addCore(c);
-					System.out.println(map.cores);
 				}
 			}
 		}
@@ -164,7 +161,6 @@ public class XMLHandler {
 				}
 			}
 		}
-		map.teams.logTeams();
 		return map;
 	}
 	public static HashMap<String, ItemStack> addInv(NodeList redInv) {
@@ -184,7 +180,6 @@ public class XMLHandler {
 						String level = rawEnch.split(":")[1];
 						Enchantment e = Enchantment.getByName(enchantment);
 						item.addUnsafeEnchantment(e, Integer.parseInt(level));
-						System.out.println("Enchantment: "+enchantment+", level: "+level);
 					}
 				}
 				if (element.hasAttribute("displayName")) {

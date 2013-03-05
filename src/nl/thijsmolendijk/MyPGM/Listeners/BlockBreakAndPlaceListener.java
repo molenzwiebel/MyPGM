@@ -1,9 +1,11 @@
 package nl.thijsmolendijk.MyPGM.Listeners;
 
 import nl.thijsmolendijk.MyPGM.Main;
+import nl.thijsmolendijk.MyPGM.Objectives.Core;
 import nl.thijsmolendijk.MyPGM.Teams.TeamData;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -39,6 +41,19 @@ public class BlockBreakAndPlaceListener implements Listener {
 		   }
 		}
 		//Core breaking!!!
+		for (Core c : this.plugin.currentMap.cores.cores) {
+			if (c.blockLiesInRegion(event.getBlock()) && event.getBlock().getType() == Material.OBSIDIAN) {
+				if (this.plugin.currentMap.teams.teamForPlayer(event.getPlayer()) == null) {
+					event.setCancelled(true);
+					return;
+				}
+				if (this.plugin.currentMap.teams.teamForPlayer(event.getPlayer()).equals(c.owner)) {
+					event.setCancelled(true);
+					event.getPlayer().sendMessage(ChatColor.RED+"Don't break your own core!");
+					return;
+				}
+			}
+		}
 	}
 	@EventHandler()
 	public void onBlockPlace(BlockPlaceEvent event) {

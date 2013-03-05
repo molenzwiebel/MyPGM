@@ -29,7 +29,6 @@ public class JoinCommand implements CommandExecutor {
 		if (!(sender instanceof Player)) return false;
 		Player p = (Player) sender;
 		if (label.equalsIgnoreCase("join")) {
-			System.out.println("Successfull joining command");
 			if (this.plugin.currentMap.name == "") return false;
 			//Join spectators
 			if (args.length == 1) {

@@ -41,7 +41,6 @@ public class ObjectiveListener implements Listener {
 	public Object[] getSourceOfBlock(Object[] map) {
 		Block b = (Block) map[0];
 		Integer count = (Integer) map[1];
-		System.out.println(count);
 		count++;
 		if (b == null) {
 			return null;
@@ -55,7 +54,6 @@ public class ObjectiveListener implements Listener {
 		if (b.getData() > 0 && b.getData() < 8) {
 			for (BlockFace face : BlockFace.values()) {
 				if (b.getRelative(face) == null) {
-					System.out.println("face is null");
 					continue;
 				}
 				if (b.getRelative(face).getData() == b.getData()-1 && b.getRelative(face).getType() == b.getType()) {
